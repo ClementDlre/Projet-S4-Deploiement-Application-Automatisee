@@ -1,0 +1,27 @@
+services:
+  droit:
+    image: odoo:14.0
+    user: root
+    volumes:
+      - ./odoo-data:/var/lib/odoo
+    command: chown -R odoo:odoo /var/lib/odoo
+
+  web:
+    image: odoo:14.0
+    ports:
+      - "PORT:8069"
+    volumes:
+      - ./odoo-data:/var/lib/odoo
+      - ./config:/etc/odoo
+    restart: always
+    depends_on:
+      droit:
+        condition: service_completed_successfully
+    networks:
+      - net_traefik
+    labels:
+      - "traefik.http.routers.EPAL.rule=Host(`EPAL.VIRT.iutinfo.fr`)"
+
+networks:
+  net_traefik:
+    external: true
